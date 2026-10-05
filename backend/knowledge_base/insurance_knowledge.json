@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Prior Authorization Basics",
+    "tags": ["prior authorization", "auth", "medical necessity", "urgent care"],
+    "content": "Prior authorization is required before some services, medications, or procedures are covered. Common examples include imaging, surgery, specialty drugs, and certain therapies. Urgent prior authorizations should be expedited and often receive a decision within 24 to 72 hours. Members should ask their provider to submit clinical documentation showing medical necessity."
+  },
+  {
+    "title": "Claim Denial Guidance",
+    "tags": ["claim denial", "denied claim", "appeal", "coverage determination"],
+    "content": "Claim denials usually happen because services were not covered, prior authorization was missing, the provider was out of network, or documentation was incomplete. Members can ask for the denial reason in writing, review the Explanation of Benefits, and file an appeal if they believe the denial was incorrect. Timelines vary by plan and by the reason for denial."
+  },
+  {
+    "title": "Benefits Coverage Rules",
+    "tags": ["benefits", "coverage", "deductible", "copay", "preventive care"],
+    "content": "Coverage depends on the member's plan type, network status, deductible, and benefit rules. Preventive services may be covered at 100 percent when performed by in-network providers, while some services require cost sharing until the deductible is met. Members should review their Summary of Benefits and Coverage and their policy details before scheduling non-emergency services."
+  },
+  {
+    "title": "Billing and Payment Questions",
+    "tags": ["billing", "bill", "payment", "premium", "balance billing"],
+    "content": "Billing issues may involve premium payments, out-of-network charges, plan balances, or incorrect amounts. Members should verify whether the bill reflects deductible, copays, coinsurance, or provider contract differences. If a charge looks incorrect, request an itemized statement and ask for a billing review before disputing the balance."
+  },
+  {
+    "title": "Member Services and ID Cards",
+    "tags": ["member services", "id card", "address update", "pcp", "account"],
+    "content": "Member services can assist with replacement ID cards, address changes, primary care physician updates, plan documents, and general account support. Many requests can be completed online or by phone, and identity verification is typically required before changing personal information or ordering replacement cards."
+  },
+  {
+    "title": "Appeals and Grievances",
+    "tags": ["appeal", "grievance", "complaint", "external review"],
+    "content": "Appeals and grievances are formal ways to dispute a coverage decision or raise a complaint about plan administration. Members have rights to request a review, ask for an expedited decision in urgent cases, and understand the plan's timelines. If a plan decision is not resolved, members may be eligible for external review depending on state rules and the nature of the issue."
+  },
+  {
+    "title": "HIPAA and Privacy",
+    "tags": ["hipaa", "privacy", "phi", "confidentiality"],
+    "content": "Health information must be protected and shared only with authorized individuals or entities. Members who have privacy concerns, need information about records, or request access to specific health information should be routed to compliance or privacy review. All responses should avoid revealing sensitive health details unnecessarily and should use professional, HIPAA-compliant communication."
+  },
+  {
+    "title": "Provider Network and Pharmacy",
+    "tags": ["provider network", "in-network", "out-of-network", "pharmacy", "formulary"],
+    "content": "Using in-network providers generally reduces cost-sharing and avoids surprise bills. Pharmacy coverage depends on formulary status, prior authorization rules, and medication tier. Members can check whether a provider is in-network, whether a drug is covered, and whether alternative formulary options are available."
+  }
+]

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aster Health - Member Support Desk</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="app-shell">
+            <header class="masthead">
+                <a class="brand-wrap" href="/" aria-label="Aster Health member operations home">
+                    <span class="brand-mark" aria-hidden="true">A</span>
+                    <span class="brand-copy">
+                        <span class="eyebrow">Aster Health</span>
+                        <span class="brand-name">Member Operations</span>
+                    </span>
+                </a>
+                <div class="status-pills" aria-label="System status">
+                    <span class="status-pill online"><span class="status-dot"></span>System online</span>
+                    <span class="status-pill">HIPAA ready</span>
+                </div>
+            </header>
+
+            <main class="workspace">
+                <section class="workspace-intro" aria-labelledby="pageTitle">
+                    <div>
+                        <span class="label">Member care / service console</span>
+                        <h1 id="pageTitle">Member Support Desk</h1>
+                        <p class="subtitle">A clear path from member question to the right team.</p>
+                    </div>
+                    <div class="workflow-key" aria-label="Support workflow">
+                        <span><b>01</b> Identify</span>
+                        <span><b>02</b> Triage</span>
+                        <span><b>03</b> Respond</span>
+                    </div>
+                </section>
+
+                <div class="desk-grid">
+                    <aside class="desk-sidebar" aria-label="Member record tools">
+                        <section class="member-lookup-section">
+                            <div class="section-heading">
+                                <span class="section-number">01</span>
+                                <div>
+                                    <p class="section-kicker">Member record</p>
+                                    <h2>Find a member</h2>
+                                </div>
+                            </div>
+                            <label for="memberLookup">Member ID</label>
+                            <div class="lookup-row">
+                                <input type="text" id="memberLookup" placeholder="e.g., HF100001">
+                                <button type="button" id="lookupBtn">Lookup</button>
+                            </div>
+                            <button type="button" id="seedDataBtn" class="secondary-btn">Load Demo Data</button>
+                            <div id="memberInfo" class="member-info hidden"></div>
+                        </section>
+
+                        <section class="history-section hidden" id="historySection">
+                            <div class="section-heading">
+                                <span class="section-number">↳</span>
+                                <div>
+                                    <p class="section-kicker">Recent activity</p>
+                                    <h2>Inquiry history</h2>
+                                </div>
+                            </div>
+                            <div id="inquiryHistory"></div>
+                        </section>
+                    </aside>
+
+                    <div class="desk-main">
+                        <section class="ticket-form-section">
+                            <div class="section-heading">
+                                <span class="section-number">02</span>
+                                <div>
+                                    <p class="section-kicker">New request</p>
+                                    <h2>What does the member need?</h2>
+                                </div>
+                            </div>
+                            <form id="ticketForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="member_id">Member ID <span class="optional">Optional</span></label>
+                                        <input type="text" id="member_id" name="member_id" placeholder="e.g., HF100001">
+                                        <small class="field-hint">Add an ID to include policy context.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="plan_type">Plan type <span class="optional">Optional</span></label>
+                                        <select id="plan_type" name="plan_type">
+                                            <option value="">Select plan type</option>
+                                            <option value="PPO">PPO</option>
+                                            <option value="HMO">HMO</option>
+                                            <option value="EPO">EPO</option>
+                                            <option value="POS">POS</option>
+                                            <option value="HDHP">HDHP/HSA</option>
+                                            <option value="Medicare Advantage">Medicare Advantage</option>
+                                            <option value="Medicaid">Medicaid</option>
+                                            <option value="Individual">Individual/ACA</option>
+                                            <option value="Group">Group/Employer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title">Inquiry subject</label>
+                                    <input type="text" id="title" name="title" placeholder="A short summary of the request" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Details</label>
+                                    <textarea id="description" name="description" placeholder="Include relevant claim numbers, dates of service, provider names, or other reference details." rows="6" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="submitted_by">Your name / contact <span class="optional">Optional</span></label>
+                                    <input type="text" id="submitted_by" name="submitted_by" placeholder="Name, email, or phone number">
+                                </div>
+                                <div class="form-actions">
+                                    <span class="form-note">Required fields are marked by the browser.</span>
+                                    <button type="submit" id="submitBtn">
+                                        <span class="btn-text">Analyze inquiry <span aria-hidden="true">→</span></span>
+                                        <span class="btn-loader hidden">Processing...</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <section class="results-section hidden" id="resultsSection">
+                            <div class="section-heading">
+                                <span class="section-number">03</span>
+                                <div>
+                                    <p class="section-kicker">Routing assessment</p>
+                                    <h2>Triage results</h2>
+                                </div>
+                            </div>
+
+                            <div class="results-grid">
+                                <div class="result-card"><div class="result-label">Category</div><div class="result-value" id="resultCategory">-</div></div>
+                                <div class="result-card"><div class="result-label">Priority</div><div class="result-value" id="resultPriority">-</div></div>
+                                <div class="result-card"><div class="result-label">Assigned team</div><div class="result-value" id="resultTeam">-</div></div>
+                                <div class="result-card"><div class="result-label">SLA</div><div class="result-value" id="resultSLA">-</div></div>
+                            </div>
+                            <div class="results-grid secondary">
+                                <div class="result-card"><div class="result-label">Compliance flag</div><div class="result-value" id="resultCompliance">-</div></div>
+                                <div class="result-card"><div class="result-label">Confidence</div><div class="result-value" id="resultConfidence">-</div></div>
+                            </div>
+                            <div class="response-section">
+                                <h3>Suggested member response</h3>
+                                <div class="response-box" id="suggestedResponse">-</div>
+                            </div>
+                            <div class="reasoning-section">
+                                <h3>Why this was routed</h3>
+                                <div class="reasoning-box" id="reasoning">-</div>
+                            </div>
+
+                            <div class="agent-response-section hidden" id="agentResponseSection">
+                                <div class="agent-header">
+                                    <div class="agent-icon" aria-hidden="true">AI</div>
+                                    <div class="agent-info">
+                                        <h3 id="agentName">AI Agent</h3>
+                                        <div class="agent-meta">
+                                            <span class="agent-action" id="agentAction">-</span>
+                                            <span class="agent-confidence" id="agentConfidence">-</span>
+                                            <span class="agent-human hidden" id="agentHumanReview">Requires Human Review</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="agent-message" id="agentMessage">-</div>
+                                <div class="chat-section" id="chatSection">
+                                    <div class="chat-header"><span>Continue with the assigned agent</span></div>
+                                    <div class="chat-messages" id="chatMessages"></div>
+                                    <div class="chat-input-container">
+                                        <input type="text" id="chatInput" placeholder="Ask a follow-up question..." autocomplete="off">
+                                        <button type="button" id="sendChatBtn">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="error-section hidden" id="errorSection" aria-live="polite">
+                            <div class="error-box"><strong>Something went wrong</strong><span id="errorMessage"></span></div>
+                        </section>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="site-footer">
+                <p class="footer-brand">Aster Health <span>/</span> Member Operations Desk</p>
+                <p class="disclaimer">Internal service workspace. Handle member information in accordance with applicable privacy requirements.</p>
+            </footer>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

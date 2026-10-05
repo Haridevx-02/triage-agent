@@ -1,314 +1,201 @@
 # Aster Health Member Triage
 
-Aster Health is a member-services triage system for health insurance operations. It uses an LLM, LangChain, and retrieval-augmented generation (RAG) to classify, prioritize, and route member inquiries with relevant policy and knowledge-base context.
+Aster Health is a demonstration member-support application for health-insurance inquiries. It combines a Groq-hosted large language model (LLM), LangChain, and retrieval-augmented generation (RAG) to provide inquiry triage with relevant insurance knowledge and optional member-policy context.
+
+The app includes a browser-based support desk, a FastAPI backend, a local SQLite database, specialized inquiry agents, and follow-up chat.
+
+> **Demonstration only:** This project is not a production health-insurance system and is not certified as HIPAA compliant. Do not enter real protected health information (PHI), API secrets, or other sensitive data.
 
 ## Screenshots
 
-### Member Lookup & Support Desk
-![Member Lookup](docs/images/01-member-lookup.png)
-*Look up a member and view policy details alongside the inquiry form*
+### Member lookup and support desk
+![Member lookup and support desk](docs/images/01-member-lookup.png)
+*Look up a demo member and view policy details alongside the inquiry form.*
 
-### Submit an Inquiry
-![Submit Inquiry](docs/images/02-submit-inquiry.png)
-*Provide member context and inquiry details for AI-powered triage*
+### Submit an inquiry
+![Submit an inquiry](docs/images/02-submit-inquiry.png)
+*Provide an inquiry and optional member context for triage.*
 
-### Triage Results
-![Triage Results](docs/images/03-triage-results.png)
-*Review the category, priority, assigned team, SLA, suggested response, and routing rationale*
+### LLM triage results
+![Triage results](docs/images/03-triage-results.png)
+*Review the category, priority, assigned team, SLA, compliance flag, suggested response, and rationale.*
 
-### AI Agent Response
-![Agent Response](docs/images/04-agent-response.png)
-*See the specialized agent response for the routed inquiry*
+### Specialized agent response
+![Specialized agent response](docs/images/04-agent-response.png)
+*See a domain-specific response after the inquiry has been routed.*
 
-## Features
+## What the app does
 
-### Core Capabilities
-- **AI-Powered Triage**: Automatically categorizes and prioritizes member inquiries using Groq LLM
-- **7 Specialized Agents**: Domain-specific AI agents for different inquiry types
-- **Interactive Chat**: Real-time conversation with agents for follow-up questions
-- **Policy Context Awareness**: Uses member's policy details for personalized responses
-- **Inquiry History Tracking**: Stores and references previous inquiries for context
-- **HIPAA Compliance Flags**: Identifies inquiries requiring compliance review
+- Accepts health-insurance inquiries through a browser-based support desk.
+- Uses a Groq-hosted LLM to classify and prioritize inquiries, recommend a team and SLA, flag compliance considerations, and draft a response.
+- Uses LangChain prompt templates and the `ChatGroq` integration to call the configured Groq model.
+- Retrieves relevant snippets from a local insurance knowledge base and includes them in LLM prompts using RAG.
+- Optionally looks up a member's policy details and inquiry history from SQLite to provide additional context.
+- Routes the triaged inquiry through a specialized agent orchestrator.
+- Saves inquiries and triage results locally, and supports follow-up chat with conversation history.
 
-### Specialized AI Agents
+## Current AI and RAG workflow
 
-| Agent | Handles |
-|-------|---------|
-| **Claims Agent** | Claim status, denials, EOBs, reimbursements |
-| **Prior Authorization Agent** | Prior auth requests, status, requirements |
-| **Benefits Agent** | Coverage questions, cost estimates, provider search |
-| **Billing Agent** | Payments, disputes, payment plans, refunds |
-| **Member Services Agent** | ID cards, address updates, PCP changes |
-| **Appeals & Grievances Agent** | Appeals, grievances, external reviews |
-| **Wellness Agent** | Preventive care, wellness programs, chronic care |
+1. The user optionally looks up a member and enters an inquiry.
+2. The FastAPI backend loads matching policy and inquiry-history context from SQLite when a member ID is available.
+3. The RAG service reads `backend/knowledge_base/insurance_knowledge.json`, builds a TF-IDF representation of its documents, and uses cosine similarity to retrieve up to three relevant snippets.
+4. The backend combines retrieved knowledge with the inquiry and available member context.
+5. LangChain sends the prompt to the configured Groq LLM. The current model setting is `openai/gpt-oss-120b`.
+6. The LLM returns structured triage information. The backend validates and presents the category, priority, assigned team, compliance flag, suggested response, rationale, SLA, and confidence.
+7. The agent orchestrator routes the inquiry to a specialized agent and returns its response; the inquiry and triage data are saved in SQLite.
+8. For follow-up chat, LangChain sends the conversation history together with relevant RAG and member context to the Groq LLM.
 
-## Tech Stack
+**RAG implementation note:** Retrieval currently uses scikit-learn TF-IDF and cosine similarity over the local JSON knowledge base. It does not use a hosted vector database or embedding API.
 
-- **Backend**: Python 3.10+, FastAPI, SQLAlchemy
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **AI/LLM**: Groq API (LLaMA 3.3 70B)
-- **Database**: SQLite (async with aiosqlite)
+## Specialized agents
 
-## Project Structure
+| Agent | Typical inquiry areas |
+|---|---|
+| Claims | Claim status, denials, EOBs, and reimbursement |
+| Prior Authorization | Authorization requirements, status, and urgent requests |
+| Benefits | Coverage, cost sharing, network, and pharmacy questions |
+| Billing | Payments, billing disputes, payment plans, and refunds |
+| Member Services | ID cards, account updates, and general member support |
+| Appeals & Grievances | Appeals, complaints, and cases needing human review |
+| Wellness & Outreach | Preventive care and wellness programs |
 
-```
-ticket-triage-agent/
+The specialized routing agents and the Groq-powered LLM have distinct roles: the LLM creates the triage assessment and powers follow-up chat, while the orchestrator routes the inquiry through the registered domain agents.
+
+## Technology
+
+- **Backend:** Python, FastAPI, Pydantic, SQLAlchemy, aiosqlite
+- **Frontend:** HTML, CSS, and vanilla JavaScript
+- **LLM provider:** Groq API
+- **LLM integration:** LangChain and `langchain-groq`
+- **RAG retrieval:** scikit-learn TF-IDF and cosine similarity
+- **Database:** SQLite
+
+## Project structure
+
+```text
+.
 ├── backend/
-│   ├── agents/
-│   │   ├── __init__.py          # Agent orchestrator factory
-│   │   ├── base_agent.py        # Base agent class & orchestrator
-│   │   ├── claims_agent.py      # Claims processing agent
-│   │   ├── prior_auth_agent.py  # Prior authorization agent
-│   │   ├── benefits_agent.py    # Benefits advisor agent
-│   │   ├── billing_agent.py     # Billing resolution agent
-│   │   ├── member_services_agent.py  # General member services
-│   │   ├── appeals_agent.py     # Appeals & grievances agent
-│   │   └── outreach_agent.py    # Wellness & outreach agent
-│   ├── main.py                  # FastAPI application
-│   ├── config.py                # Configuration settings
-│   ├── models.py                # Pydantic models
-│   ├── database.py              # SQLAlchemy database setup
-│   ├── db_service.py            # Database operations
-│   ├── grok_service.py          # Groq API integration
-│   ├── triage_service.py        # Triage logic
-│   ├── chat_service.py          # Interactive chat service
-│   └── requirements.txt         # Python dependencies
+│   ├── agents/                       # Specialized agent classes and orchestrator
+│   ├── knowledge_base/
+│   │   └── insurance_knowledge.json  # Local source documents used by RAG
+│   ├── chat_service.py               # LangChain follow-up chat
+│   ├── config.py                     # Loads backend/.env and selects Groq model
+│   ├── database.py                   # SQLite models and async database setup
+│   ├── db_service.py                 # Member and inquiry database operations
+│   ├── grok_service.py               # LangChain/Groq inquiry triage call
+│   ├── main.py                       # FastAPI application and API routes
+│   ├── rag_service.py                # TF-IDF retrieval and RAG context building
+│   ├── start_server.py               # Finds an available port and starts Uvicorn
+│   ├── test_rag_service.py           # RAG retrieval tests
+│   ├── triage_service.py             # Inquiry context, triage, routing, and persistence
+│   └── requirements.txt
+├── docs/
+│   └── images/                       # README screenshots
 ├── frontend/
-│   ├── index.html               # Main HTML page
-│   ├── style.css                # Styles
-│   └── app.js                   # Frontend JavaScript
-├── .env.example                 # Environment variables template
-├── .gitignore                   # Git ignore rules
-├── AGENT_USE_CASES.md           # Agent use cases documentation
-└── README.md                    # This file
+│   ├── app.js
+│   ├── index.html
+│   └── style.css
+├── .env.example
+├── .gitignore
+├── run_app.bat                       # Windows launcher
+└── README.md
 ```
 
-## Installation
+## Requirements
 
-### Prerequisites
-- Python 3.10 or higher
-- Groq API key (get one at [console.groq.com](https://console.groq.com))
+- Python 3.10 or newer
+- A Groq API key from the [Groq Console](https://console.groq.com/keys)
 
-### Setup
+## Setup and run on Windows
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/rdekarmakar/ticket-triage-agent.git
-   cd ticket-triage-agent
+Run these commands from PowerShell in the project folder:
+
+1. Create and activate a virtual environment:
+
+   ```powershell
+   py -m venv .venv
+   .\.venv\Scripts\Activate.ps1
    ```
 
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
+2. Install the backend dependencies:
 
-   # Windows
-   venv\Scripts\activate
-
-   # macOS/Linux
-   source venv/bin/activate
+   ```powershell
+   py -m pip install -r backend\requirements.txt
    ```
 
-3. **Install dependencies**
-   ```bash
-   cd backend
-   pip install -r requirements.txt
+3. Create the local environment file and open it:
+
+   ```powershell
+   Copy-Item .env.example backend\.env
+   notepad backend\.env
    ```
 
-4. **Configure environment**
-   ```bash
-   # Run these commands from the backend directory on Windows
-   copy ..\.env.example .env
-   notepad .env
-   ```
-   Replace `your_groq_api_key_here` with your key from [Groq Console](https://console.groq.com/keys). Keep the variable name exactly `GROQ_API_KEY` and do not share or commit the key.
+   Replace `your_groq_api_key_here` with your Groq API key. Keep the setting name as `GROQ_API_KEY`. Never paste the key into source code, commit it, or share it publicly. The `backend/.env` file is ignored by Git.
 
-5. **Run the application**
-   ```bash
-   python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+4. Start the application from the project root:
+
+   ```powershell
+   .\run_app.bat
    ```
 
-6. **Access the application**
-   - Open http://localhost:8000 in your browser
-   - Click "Load Demo Data" to populate sample policy holders
-   - Try looking up member ID: `HF100001`
+   The launcher starts the backend on port `8001` or the next available port. Leave the terminal open while using the app; it prints the URL to open.
 
-## Usage
+5. Open the printed local URL in your browser. Select **Load Demo Data** to add sample members, then look up `HF100001`.
 
-### Basic Workflow
+### Start the server manually
 
-1. **Lookup a Member** (optional)
-   - Enter a Member ID (e.g., `HF100001`)
-   - Click "Lookup" to load policy details
+From the project root, run:
 
-2. **Submit an Inquiry**
-   - Enter a subject (e.g., "Claim denied for MRI")
-   - Describe the issue in detail
-   - Click "Analyze Inquiry"
-
-3. **View Triage Results**
-   - Category, Priority, Assigned Team
-   - SLA timeframe
-   - Compliance flags
-   - AI-suggested response
-
-4. **Interact with Agent**
-   - See the specialized agent's detailed response
-   - Ask follow-up questions in the chat
-   - Get personalized guidance based on your policy
-
-### Sample Inquiries to Test
-
-| Inquiry Type | Sample Subject | Sample Description |
-|--------------|----------------|-------------------|
-| Claims | Claim denied for MRI | My claim #CLM-12345 was denied. Why? |
-| Prior Auth | Need surgery approval | Doctor wants to schedule knee replacement |
-| Benefits | Physical therapy coverage | How many PT sessions are covered? |
-| Billing | Incorrect bill | I was charged $500 but already met deductible |
-| Member Services | Lost ID card | Need a replacement insurance card |
-| Appeals | Appeal denied claim | I want to appeal the MRI denial |
-| Wellness | Gym reimbursement | How do I get reimbursed for gym membership? |
-
-## API Endpoints
-
-### Triage
-```
-POST /api/triage
-```
-Submit an inquiry for AI-powered triage and agent response.
-
-### Chat
-```
-POST /api/chat
-```
-Send follow-up messages to continue conversation with an agent.
-
-### Members
-```
-GET  /api/members/{member_id}    # Get member details
-GET  /api/members                # List all members
-POST /api/members                # Create new member
-PUT  /api/members/{member_id}    # Update member
+```powershell
+cd backend
+py start_server.py
 ```
 
-### Utilities
-```
-GET  /api/health                 # Health check
-POST /api/seed-demo-data         # Load demo data
-```
+This starts Uvicorn on the first available port beginning at `8001`. Use the URL printed in the terminal.
 
-## Agent Architecture
+## Use the support desk
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    User Inquiry                          │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│              Groq LLM (Triage)                          │
-│  - Categorize inquiry                                    │
-│  - Assign priority                                       │
-│  - Route to team                                         │
-│  - Generate initial response                             │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│            Agent Orchestrator                            │
-│  - Routes to specialized agent based on category         │
-│  - Provides policy context                               │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-        ┌─────────────┼─────────────┐
-        ▼             ▼             ▼
-┌───────────┐  ┌───────────┐  ┌───────────┐
-│  Claims   │  │  Benefits │  │  Billing  │  ... (7 agents)
-│   Agent   │  │   Agent   │  │   Agent   │
-└───────────┘  └───────────┘  └───────────┘
-        │             │             │
-        └─────────────┼─────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│              Detailed Agent Response                     │
-│  - Personalized guidance                                 │
-│  - Step-by-step instructions                             │
-│  - Relevant contact info                                 │
-│  - Action items                                          │
-└─────────────────────────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│              Interactive Chat                            │
-│  - Follow-up questions                                   │
-│  - Conversation history maintained                       │
-│  - Context-aware responses                               │
-└─────────────────────────────────────────────────────────┘
-```
+1. Optionally click **Load Demo Data**, then look up a member such as `HF100001`.
+2. Optionally add the member ID and plan type to the inquiry.
+3. Enter an inquiry subject and details, then select **Analyze inquiry**.
+4. Review the LLM triage assessment and the routed agent response.
+5. Continue with a follow-up question in the chat when available. The chat can use conversation, member, and retrieved knowledge context.
 
-## Demo Data
+Use fictional/demo information only. Do not use this demonstration app to make real coverage, medical, or claims decisions.
 
-The application includes demo policy holders for testing:
+## API
 
-| Member ID | Name | Plan Type | Notes |
-|-----------|------|-----------|-------|
-| HF100001 | John Smith | PPO | Standard plan with dental/vision |
-| HF100002 | Sarah Johnson | Medicare Advantage | $0 PCP copay |
-| HF100003 | Michael Williams | HDHP | High deductible, HSA eligible |
-| HF100004 | Emily Davis | HMO | Low copays, referral required |
+The FastAPI server exposes these routes:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/` | Serve the support desk frontend |
+| `GET` | `/api/health` | Check backend availability |
+| `POST` | `/api/triage` | Triage an inquiry |
+| `POST` | `/api/chat` | Send a follow-up chat message |
+| `GET` | `/api/members` | List members; accepts an optional `search` query |
+| `POST` | `/api/members` | Create a member |
+| `GET` | `/api/members/{member_id}` | Get member details and recent inquiries |
+| `PUT` | `/api/members/{member_id}` | Update member details |
+| `GET` | `/api/members/{member_id}/inquiries` | Get a member's inquiry history |
+| `POST` | `/api/seed-demo-data` | Add demo members to the local database |
+
+Interactive API documentation is available at `/docs` on the local server.
 
 ## Configuration
 
-### Environment Variables
+The application reads `GROQ_API_KEY` from `backend/.env`. The current Groq model is configured as `GROQ_MODEL` in `backend/config.py`; its current value is `openai/gpt-oss-120b`. Triage and follow-up chat share this setting.
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `GROQ_API_KEY` | Your Groq API key | Yes |
+The local RAG source is `backend/knowledge_base/insurance_knowledge.json`. Add or edit knowledge entries there using the existing JSON structure (`title`, `tags`, and `content`).
 
-### Customization
+## Run the RAG tests
 
-- **Categories**: Modify `models.py` to add/change inquiry categories
-- **Teams**: Update team assignments in `models.py`
-- **Agent Behavior**: Customize agent prompts in individual agent files
-- **SLA Times**: Adjust SLA hours in `grok_service.py`
+From the backend folder, run:
 
-## Development
-
-### Running in Development Mode
-```bash
-cd backend
-python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```powershell
+py -m unittest test_rag_service.py
 ```
 
-### Testing the API
-```bash
-# Health check
-curl http://localhost:8000/api/health
+## Privacy and deployment
 
-# Submit triage request
-curl -X POST http://localhost:8000/api/triage \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Claim denied", "description": "My MRI claim was denied", "member_id": "HF100001"}'
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Built with [FastAPI](https://fastapi.tiangolo.com/)
-- AI powered by [Groq](https://groq.com/) and LLaMA 3.3 70B
-- Designed for health insurance member services workflows
-
----
-
-**Note**: This is a demonstration application. In production, ensure proper security measures, HIPAA compliance, and thorough testing before handling real member data.
+This is a local demonstration project. Its sample data and workflow do not provide production security controls, privacy safeguards, or regulatory certification. Do not upload API keys, real member records, or PHI to GitHub. Before any real-world use, obtain appropriate security, privacy, legal, and clinical review and implement the required protections.

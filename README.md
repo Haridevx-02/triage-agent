@@ -1,34 +1,24 @@
-# CarePilot AI Member Triage
+# Aster Health Member Triage
 
-CarePilot AI is a member-services triage system for health insurance operations. It uses specialized AI agents to classify, prioritize, and route member inquiries while preserving the same backend workflow, API behavior, and triage logic already in place.
-
-This version keeps the project functionality intact and refreshes the product branding, UI labeling, and documentation for a cleaner enterprise presentation.
+Aster Health is a member-services triage system for health insurance operations. It uses an LLM, LangChain, and retrieval-augmented generation (RAG) to classify, prioritize, and route member inquiries with relevant policy and knowledge-base context.
 
 ## Screenshots
 
-### Member Lookup & Policy Details
+### Member Lookup & Support Desk
 ![Member Lookup](docs/images/01-member-lookup.png)
-*Look up member by ID to view policy details, coverage information, and inquiry history*
+*Look up a member and view policy details alongside the inquiry form*
 
 ### Submit an Inquiry
 ![Submit Inquiry](docs/images/02-submit-inquiry.png)
-*Submit inquiries with member context for personalized AI-powered triage*
+*Provide member context and inquiry details for AI-powered triage*
 
 ### Triage Results
 ![Triage Results](docs/images/03-triage-results.png)
-*AI categorizes inquiries by type, priority, and assigns to appropriate team with SLA*
+*Review the category, priority, assigned team, SLA, suggested response, and routing rationale*
 
 ### AI Agent Response
 ![Agent Response](docs/images/04-agent-response.png)
-*Specialized Claims Agent provides detailed guidance with member rights and next steps*
-
-### Interactive Chat
-![Interactive Chat](docs/images/05-interactive-chat.png)
-*Continue conversation with the agent for follow-up questions and real-time assistance*
-
-### Member Inquiry History
-![Inquiry History](docs/images/06-inquiry-history.png)
-*Track all member inquiries with category, priority, and status*
+*See the specialized agent response for the routed inquiry*
 
 ## Features
 

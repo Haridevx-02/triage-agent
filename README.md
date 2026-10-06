@@ -196,6 +196,15 @@ From the backend folder, run:
 py -m unittest test_rag_service.py
 ```
 
+## Deploy a live resume demo on Render
+
+1. Push this project to a GitHub repository and create a new **Blueprint** in Render using that repository. Render will read the deployment settings from [`render.yaml`](render.yaml).
+2. When prompted, enter your Groq API key as the `GROQ_API_KEY` environment variable in Render. Do not add the key to this repository or to the frontend.
+3. Wait for the deployment to finish, then open the `onrender.com` URL shown in the Render dashboard. Check `/api/health`, load the demo data, and try a sample inquiry.
+4. Add the public URL to your resume and portfolio. For example: “Built and deployed an AI-powered member-services triage demo with FastAPI, Groq/LangChain, TF-IDF retrieval, and seven specialized routing agents.”
+
+The free Render service can spin down when idle, so its first request after inactivity may take a little longer. The app currently uses a local SQLite database; data is demo-only and may be lost when the service restarts or is redeployed. Use **Load Demo Data** to repopulate it. Do not enter real personal, health, or insurance information.
+
 ## Privacy and deployment
 
 This is a local demonstration project. Its sample data and workflow do not provide production security controls, privacy safeguards, or regulatory certification. Do not upload API keys, real member records, or PHI to GitHub. Before any real-world use, obtain appropriate security, privacy, legal, and clinical review and implement the required protections.
